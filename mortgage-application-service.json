@@ -1,0 +1,294 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Mortgage Application Service",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "Mortgage Application",
+      "description": "API Ипотечных заявок"
+    }
+  ],
+  "paths": {
+    "/mortgage/application": {
+      "post": {
+        "tags": [
+          "Mortgage Application"
+        ],
+        "summary": "Оформить заявку на ипотеку",
+        "operationId": "createApplication",
+        "requestBody": {
+          "description": "Анкетные даные для ипотеки",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMortgageApplication"
+              },
+              "example": {
+                "firstName": "Иван",
+                "secondName": "Иванович",
+                "lastName": "Иванов",
+                "passport": "9410123456",
+                "birthDate": "1990-10-23",
+                "gender": "MALE",
+                "salary": 80000,
+                "creditAmount": 3000000,
+                "durationInMonths": 120
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "headers": {
+              "Location": {
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string",
+                  "description": "URL-адрес созданной заявки",
+                  "format": "uri",
+                  "example": "http://localhost:8080/mortgage/application/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MortgageApplication"
+                },
+                "example": {
+                  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "firstName": "Иван",
+                  "secondName": "Иванович",
+                  "lastName": "Иванов",
+                  "passport": "9410123456",
+                  "birthDate": "1990-10-23",
+                  "gender": "MALE",
+                  "salary": 80000,
+                  "creditAmount": 3000000,
+                  "durationInMonths": 120,
+                  "status": "PROCESSING"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mortgage/application/{id}": {
+      "get": {
+        "tags": [
+          "Mortgage Application"
+        ],
+        "summary": "Найти заявку по ID",
+        "description": "Возвращает один объект заявки",
+        "operationId": "getApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MortgageApplication"
+                },
+                "example": {
+                  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "firstName": "Иван",
+                  "secondName": "Иванович",
+                  "lastName": "Иванов",
+                  "passport": "9410123456",
+                  "birthDate": "1990-10-23",
+                  "gender": "MALE",
+                  "salary": 80000,
+                  "creditAmount": 3000000,
+                  "durationInMonths": 120,
+                  "status": "APPROVED",
+                  "monthlyPayment": 35610.53
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateMortgageApplication": {
+        "required": [
+          "birthDate",
+          "creditAmount",
+          "durationInMonths",
+          "firstName",
+          "gender",
+          "lastName",
+          "passport",
+          "salary",
+          "secondName"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "secondName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "passport": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "salary": {
+            "maximum": 1000000000,
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "type": "number"
+          },
+          "creditAmount": {
+            "maximum": 1000000000,
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "type": "number"
+          },
+          "durationInMonths": {
+            "maximum": 1200,
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Gender": {
+        "type": "string",
+        "enum": [
+          "MALE",
+          "FEMALE"
+        ]
+      },
+      "MortgageApplication": {
+        "required": [
+          "birthDate",
+          "creditAmount",
+          "durationInMonths",
+          "firstName",
+          "gender",
+          "id",
+          "lastName",
+          "passport",
+          "salary",
+          "secondName",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "secondName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "passport": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "salary": {
+            "type": "number"
+          },
+          "creditAmount": {
+            "type": "number"
+          },
+          "durationInMonths": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MortgageApplicationStatus"
+          },
+          "monthlyPayment": {
+            "type": "number"
+          }
+        }
+      },
+      "MortgageApplicationStatus": {
+        "type": "string",
+        "enum": [
+          "PROCESSING",
+          "APPROVED",
+          "DENIED"
+        ]
+      },
+      "ErrorMessage": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
